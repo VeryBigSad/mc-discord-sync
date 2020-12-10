@@ -29,12 +29,13 @@ public class Main extends JavaPlugin implements Listener {
     private String playerLeft = "&p just leaved the server!";
     private String ServerStart = "Server Started!";
     private String ServerStop = "Server Stopped!";
-    private String channelID = "ENTER YOUR CHANNEL ID HERE";
+    private String chatChannelID = "ENTER YOUR CHANNEL ID HERE";
     private String discordInviteLink = "INVITE LINK OF YOUR DISCORD";
     private String discordPerm = "ENTER THE ADMIN DISCORD ROLE";
     private String TOKEN = "ENTER YOUR TOKEN HERE";
     private String syncBan = "true";
     private String syncRoleID = "ENTER YOUR SYNC ROLE ID";
+    private String commandsChannelId = "ENTER YOUR #BOT-COMMANDS CHANNEL ID HERE";
     private String boldStart = "**";
     private String squareParOpen = "[";
     private String squareParClose = "]";
@@ -53,20 +54,21 @@ public class Main extends JavaPlugin implements Listener {
             dc.setChatCommands(chatCommands);
             chatCommands.setSyncedPeopleList(sfo.readSyncFile()); //Reading the Synced People
         } catch (IOException e) {
-            getLogger().warning("CAN'T INTERACT WITH 'discord/' PATH!");
+            getLogger().warning("CAN'T INTERACT WITH 'plugins/discord/' PATH!");
         }
 
         if(!TOKEN.equals("ENTER YOUR TOKEN HERE"))
             try {
-                dc.executeBot(getServer(), getLogger(), TOKEN, channelID, discordPerm, ServerStart);
+                dc.executeBot(getServer(), getLogger(), TOKEN, chatChannelID, syncRoleID, ServerStart, commandsChannelId);
             } catch (LoginException e) {
+                getLogger().info(e.getMessage());
                 getLogger().warning("Couldn't join to discord! Check your token or Internet Connection!");
             }
     }
 
     @Override
     public void onDisable() {
-        dc.sendMessageToDiscord(ServerStop);
+        dc.sendMessageToDiscord(ServerStop, false);
         getLogger().info("MCD OUT!");
     }
 
@@ -75,14 +77,8 @@ public class Main extends JavaPlugin implements Listener {
         if(!event.getMessage().startsWith("/")) {
             String user = event.getPlayer().getDisplayName();
             String message = event.getMessage();
-            dc.sendMessageToDiscord(boldStart + squareParOpen + user + squareParClose + boldEnd + " " + message);
+            dc.sendMessageToDiscord(boldStart + squareParOpen + user + squareParClose + boldEnd + " " + message, false);
         }
-    }
-
-    @EventHandler
-    public void playerJoinEvent(PlayerLoginEvent event) {
-        String player = event.getPlayer().getDisplayName();
-        dc.sendMessageToDiscord(boldStart + playerJoin.replace("&p", player) + boldEnd);
     }
 
     @EventHandler
@@ -132,12 +128,12 @@ public class Main extends JavaPlugin implements Listener {
     public void playerJoinEventyes(PlayerJoinEvent event) {
         boolean is_synced = false;
 
-//        getLogger().info("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaAAAAAAAAAAAaAAAAAAAAAAA");
-//        System.out.println(event.getPlayer().getName() + "AAAAAAAAAAAAAA");
+        String player = event.getPlayer().getDisplayName();
+        dc.sendMessageToDiscord(boldStart + playerJoin.replace("&p", player) + boldEnd, false);
+
         for(String args : chatCommands.getSyncedPeopleList()) {
             String UUID = args.split(":")[0].trim();
             if(event.getPlayer().getUniqueId().toString().trim().equals(UUID)) {
-//                System.out.println(event.getPlayer().getName() + " is already authed");
                 is_synced = true;
             }
         }
@@ -149,18 +145,13 @@ public class Main extends JavaPlugin implements Listener {
                     "\nTo do that, join " + ChatColor.DARK_AQUA + "IamVeryBigSad" + ChatColor.AQUA + "'s server\n" +
                     ChatColor.GREEN + "Link: " + discordInviteLink +
                     ChatColor.AQUA + "\nAnd in" + ChatColor.DARK_RED + " #bot-commands " + ChatColor.AQUA + "type " + ChatColor.WHITE + ChatColor.BOLD + "\"!verify <code>\"".replaceAll("<code>", code));
-
-            return;
         }
-
-        String player = event.getPlayer().getDisplayName();
-        dc.sendMessageToDiscord(boldStart + playerJoin.replace("&p", player) + boldEnd);
     }
 
     @EventHandler
     public void playerLeftEvent(PlayerQuitEvent event) {
         String player = event.getPlayer().getDisplayName();
-        dc.sendMessageToDiscord(boldStart + playerLeft.replace("&p", player) + boldEnd);
+        dc.sendMessageToDiscord(boldStart + playerLeft.replace("&p", player) + boldEnd, false);
     }
 
     @EventHandler
@@ -169,16 +160,16 @@ public class Main extends JavaPlugin implements Listener {
         String user = "Server";
         if(message.startsWith("say ")) {
             message = message.replace("say", " ").trim();
-            dc.sendMessageToDiscord("*" + boldStart + squareParOpen + user + squareParClose + message + boldEnd + "* ");
+            dc.sendMessageToDiscord("*" + boldStart + squareParOpen + user + squareParClose + message + boldEnd + "* ", false);
         }
     }
 
     public void ConfigThingies () throws IOException {
-        File folder = new File("discord");
+        File folder = new File("plugins/discord");
         if(!folder.exists())
             folder.mkdir();
 
-        File config = new File("discord/config.ini");
+        File config = new File("plugins/discord/config.ini");
         if(!config.exists()) {
             config.createNewFile();
             createConfigFile(config);
@@ -193,7 +184,7 @@ public class Main extends JavaPlugin implements Listener {
                 TOKEN = temp.replaceFirst("Discord Bot Token="," ").trim();
             }
             if(temp.startsWith("Discord Channel ID=")) {
-                channelID = temp.replaceFirst("Discord Channel ID="," ").trim();
+                chatChannelID = temp.replaceFirst("Discord Channel ID="," ").trim();
             }
             if(temp.startsWith("Player Join Message=")) {
                 playerJoin = temp.replaceFirst("Player Join Message="," ").trim();
@@ -233,6 +224,11 @@ public class Main extends JavaPlugin implements Listener {
                     syncRoleID_GRANTED = true;
                 }
             }
+            if(temp.startsWith("commandsChannelId=")) {
+                if(!temp.replaceFirst("commandsChannelId="," ").trim().equals(commandsChannelId)) {
+                    commandsChannelId = temp.replaceFirst("commandsChannelId="," ").trim();
+                }
+            }
             if(temp.startsWith("CFG-VERSION=")) {
                 if(!temp.replaceFirst("CFG-VERSION="," ").trim().equals(VERSION)) {
                     CFG_VER_EQ = false;
@@ -253,7 +249,7 @@ public class Main extends JavaPlugin implements Listener {
                 "#Token of your Bot\n" +
                 "Discord Bot Token= " + TOKEN + "\n" +
                 "#Discord Channel that our bot will mirror the Minecraft chat\n" +
-                "Discord Channel ID= " + channelID + "\n" +
+                "Discord Channel ID= " + chatChannelID + "\n" +
                 "# At discord chat you can use '!exec <commands>' to run commands, enter the role id. \n" +
                 "# To be able to obtain the Role ID, go server settings than Roles tab, right click the role you want to authorize and copy ID, than paste it here!\n" +
                 "Discord Admin Role ID= " + discordPerm + "\n" +
@@ -265,6 +261,7 @@ public class Main extends JavaPlugin implements Listener {
                 "Player Disconnect Message= "+ playerLeft + "\n" +
                 "Server Start Message= "+ ServerStart + "\n" +
                 "Server Stop Message= " + ServerStop + "\n" +
+                "commandsChannelId= " + commandsChannelId + "\n" +
                 "CFG-VERSION= " + VERSION;
         fw.write(configFile);
         bw.close();
@@ -275,8 +272,8 @@ public class Main extends JavaPlugin implements Listener {
         return TOKEN;
     }
 
-    public String getChannelID() {
-        return channelID;
+    public String getChatChannelID() {
+        return chatChannelID;
     }
 
     public String getDiscordInviteLink() {

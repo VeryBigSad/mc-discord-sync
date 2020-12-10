@@ -7,7 +7,7 @@ public class SyncFileOperation {
     private String path;
     private File file;
     SyncFileOperation() throws IOException {
-        path = "discord/syncList.dat";
+        path = "plugins/discord/syncList.dat";
         file = new File(path);
         if(!file.exists()) {
             writeSyncFile(new ArrayList<String>());

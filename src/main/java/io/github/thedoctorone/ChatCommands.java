@@ -65,28 +65,30 @@ public class ChatCommands implements CommandExecutor {
         * Args[0] -> Full Reload - Reloads whole bot
         * Args[0] -> sync - Sends random 4 digit integer for verifying
         * */
-        try {
-             if(args.length == 0) { //Empty - Sends help
-                sendHelp(sender);
-                return true;
-            } else if(args[0].equals(full)) { //Full
-                fullReload(sender);
-                return true;
-            } else if(args[0].equals(fast)) { //Fast
-                 fastReload(sender);
-                return true;
-            } else if(args[0].equals(sync)) { //Sync
-                 syncDiscord(sender, args);
-                 return true;
-             } else {
-                 sender.sendMessage("Wrong usage.");
-             }
-        } catch (IOException | LoginException e) {
-            main.getLogger().warning("ERROR - CONFIG READ - IO EXCEPTION");
-            sender.sendMessage("ERROR - CONFIG READ - IO EXCEPTION");
-            return false;
-        }
-        return false;
+        return true;
+//
+//        try {
+//             if(args.length == 0) { //Empty - Sends help
+//                sendHelp(sender);
+//                return true;
+//            } else if(args[0].equals(full)) { //Full
+//                fullReload(sender);
+//                return true;
+//            } else if(args[0].equals(fast)) { //Fast
+//                 fastReload(sender);
+//                return true;
+//            } else if(args[0].equals(sync)) { //Sync
+//                 syncDiscord(sender, args);
+//                 return true;
+//             } else {
+//                 sender.sendMessage("Wrong usage.");
+//             }
+//        } catch (IOException | LoginException e) {
+//            main.getLogger().warning("ERROR - CONFIG READ - IO EXCEPTION");
+//            sender.sendMessage("ERROR - CONFIG READ - IO EXCEPTION");
+//            return false;
+//        }
+//        return false;
     }
 
     private void fastReload(CommandSender sender) throws IOException { //Command : Fast
@@ -95,7 +97,7 @@ public class ChatCommands implements CommandExecutor {
             if(player.isOp()) { //Player perm control
                 sender.sendMessage("Fast Reload Starting...");
                 main.ConfigThingies();
-                dc.setChannelId(main.getChannelID());
+                dc.setChannelId(main.getChatChannelID());
                 dc.setPermId(main.getDiscordPerm());
                 sender.sendMessage("Fast Reload Successful!");
             } else {
@@ -105,7 +107,7 @@ public class ChatCommands implements CommandExecutor {
             try {
                 sender.sendMessage("Fast Reload Starting...");
                 main.ConfigThingies();
-                dc.setChannelId(main.getChannelID());
+                dc.setChannelId(main.getChatChannelID());
                 dc.setPermId(main.getDiscordPerm());
                 sender.sendMessage("Fast Reload Successful!");
             } catch (IOException e) {
@@ -121,7 +123,7 @@ public class ChatCommands implements CommandExecutor {
                 sender.sendMessage("Full Reload Starting...");
                 main.ConfigThingies();
                 dc.reloadBot(main.getTOKEN());
-                dc.setChannelId(main.getChannelID());
+                dc.setChannelId(main.getChatChannelID());
                 dc.setPermId(main.getDiscordPerm());
                 sender.sendMessage("Full Reload Successful!");
             } else {
@@ -131,7 +133,7 @@ public class ChatCommands implements CommandExecutor {
             sender.sendMessage("Full Reload Starting...");
             main.ConfigThingies();
             dc.reloadBot(main.getTOKEN());
-            dc.setChannelId(main.getChannelID());
+            dc.setChannelId(main.getChatChannelID());
             dc.setPermId(main.getDiscordPerm());
             sender.sendMessage("Full Reload Successful!");
         }
