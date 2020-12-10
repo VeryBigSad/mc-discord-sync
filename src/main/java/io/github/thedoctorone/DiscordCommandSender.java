@@ -6,11 +6,14 @@ import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.PistonMoveReaction;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationAbandonedEvent;
 import org.bukkit.entity.*;
+import org.bukkit.entity.memory.MemoryKey;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.*;
@@ -19,11 +22,16 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.util.BoundingBox;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.InetSocketAddress;
 import java.util.*;
@@ -55,6 +63,31 @@ public class DiscordCommandSender implements Player {
 
     @Override
     public void setPlayerListName(String name) {
+
+    }
+
+    @Override
+    public @Nullable String getPlayerListHeader() {
+        return null;
+    }
+
+    @Override
+    public @Nullable String getPlayerListFooter() {
+        return null;
+    }
+
+    @Override
+    public void setPlayerListHeader(@Nullable String header) {
+
+    }
+
+    @Override
+    public void setPlayerListFooter(@Nullable String footer) {
+
+    }
+
+    @Override
+    public void setPlayerListHeaderFooter(@Nullable String header, @Nullable String footer) {
 
     }
 
@@ -101,6 +134,11 @@ public class DiscordCommandSender implements Player {
     @Override
     public void sendRawMessage(String message) {
         dc.returnLogFromConsole(message);
+    }
+
+    @Override
+    public void sendRawMessage(@Nullable UUID sender, @NotNull String message) {
+
     }
 
     @Override
@@ -225,17 +263,27 @@ public class DiscordCommandSender implements Player {
     }
 
     @Override
+    public void sendBlockChange(@NotNull Location loc, @NotNull BlockData block) {
+
+    }
+
+    @Override
     public boolean sendChunkChange(Location loc, int sx, int sy, int sz, byte[] data) {
         return false;
     }
 
+//    @Override
+//    public void sendBlockChange(Location loc, int material, byte data) {
+//
+//    }
+
     @Override
-    public void sendBlockChange(Location loc, int material, byte data) {
+    public void sendSignChange(Location loc, String[] lines) throws IllegalArgumentException {
 
     }
 
     @Override
-    public void sendSignChange(Location loc, String[] lines) throws IllegalArgumentException {
+    public void sendSignChange(@NotNull Location loc, @Nullable String[] lines, @NotNull DyeColor dyeColor) throws IllegalArgumentException {
 
     }
 
@@ -249,20 +297,20 @@ public class DiscordCommandSender implements Player {
 
     }
 
-    @Override
-    public void awardAchievement(Achievement achievement) {
-
-    }
-
-    @Override
-    public void removeAchievement(Achievement achievement) {
-
-    }
-
-    @Override
-    public boolean hasAchievement(Achievement achievement) {
-        return false;
-    }
+//    @Override
+//    public void awardAchievement(Achievement achievement) {
+//
+//    }
+//
+//    @Override
+//    public void removeAchievement(Achievement achievement) {
+//
+//    }
+//
+//    @Override
+//    public boolean hasAchievement(Achievement achievement) {
+//        return false;
+//    }
 
     @Override
     public void incrementStatistic(Statistic statistic) throws IllegalArgumentException {
@@ -431,6 +479,16 @@ public class DiscordCommandSender implements Player {
 
     @Override
     public void setTotalExperience(int exp) {
+
+    }
+
+    @Override
+    public void sendExperienceChange(float progress) {
+
+    }
+
+    @Override
+    public void sendExperienceChange(float progress, int level) {
 
     }
 
@@ -720,8 +778,23 @@ public class DiscordCommandSender implements Player {
     }
 
     @Override
+    public int getClientViewDistance() {
+        return 0;
+    }
+
+    @Override
     public String getLocale() {
         return null;
+    }
+
+    @Override
+    public void updateCommands() {
+
+    }
+
+    @Override
+    public void openBook(@NotNull ItemStack book) {
+
     }
 
     @Override
@@ -755,6 +828,11 @@ public class DiscordCommandSender implements Player {
     }
 
     @Override
+    public @NotNull BoundingBox getBoundingBox() {
+        return null;
+    }
+
+    @Override
     public boolean isOnGround() {
         return false;
     }
@@ -762,6 +840,11 @@ public class DiscordCommandSender implements Player {
     @Override
     public World getWorld() {
         return null;
+    }
+
+    @Override
+    public void setRotation(float yaw, float pitch) {
+
     }
 
     @Override
@@ -839,8 +922,28 @@ public class DiscordCommandSender implements Player {
     }
 
     @Override
+    public void sendMessage(@Nullable UUID sender, @NotNull String message) {
+
+    }
+
+    @Override
+    public void sendMessage(@Nullable UUID sender, @NotNull String[] messages) {
+
+    }
+
+    @Override
     public Server getServer() { //SERVER WILL BE ENTERED
         return main.getServer();
+    }
+
+    @Override
+    public boolean isPersistent() {
+        return false;
+    }
+
+    @Override
+    public void setPersistent(boolean persistent) {
+
     }
 
     @Override
@@ -1019,6 +1122,16 @@ public class DiscordCommandSender implements Player {
     }
 
     @Override
+    public @NotNull BlockFace getFacing() {
+        return null;
+    }
+
+    @Override
+    public @NotNull Pose getPose() {
+        return null;
+    }
+
+    @Override
     public Player.Spigot spigot() {
         return (Player.Spigot) main.getServer().getConsoleSender().spigot();
     }
@@ -1139,6 +1252,21 @@ public class DiscordCommandSender implements Player {
     }
 
     @Override
+    public boolean sleep(@NotNull Location location, boolean force) {
+        return false;
+    }
+
+    @Override
+    public void wakeup(boolean setSpawnLocation) {
+
+    }
+
+    @Override
+    public @NotNull Location getBedLocation() {
+        return null;
+    }
+
+    @Override
     public GameMode getGameMode() {
         return null;
     }
@@ -1164,6 +1292,41 @@ public class DiscordCommandSender implements Player {
     }
 
     @Override
+    public float getAttackCooldown() {
+        return 0;
+    }
+
+    @Override
+    public boolean discoverRecipe(@NotNull NamespacedKey recipe) {
+        return false;
+    }
+
+    @Override
+    public int discoverRecipes(@NotNull Collection<NamespacedKey> recipes) {
+        return 0;
+    }
+
+    @Override
+    public boolean undiscoverRecipe(@NotNull NamespacedKey recipe) {
+        return false;
+    }
+
+    @Override
+    public int undiscoverRecipes(@NotNull Collection<NamespacedKey> recipes) {
+        return 0;
+    }
+
+    @Override
+    public boolean hasDiscoveredRecipe(@NotNull NamespacedKey recipe) {
+        return false;
+    }
+
+    @Override
+    public @NotNull Set<NamespacedKey> getDiscoveredRecipes() {
+        return null;
+    }
+
+    @Override
     public Entity getShoulderEntityLeft() {
         return null;
     }
@@ -1181,6 +1344,11 @@ public class DiscordCommandSender implements Player {
     @Override
     public void setShoulderEntityRight(Entity entity) {
 
+    }
+
+    @Override
+    public boolean dropItem(boolean dropAll) {
+        return false;
     }
 
     @Override
@@ -1214,6 +1382,26 @@ public class DiscordCommandSender implements Player {
     }
 
     @Override
+    public @Nullable Block getTargetBlockExact(int maxDistance) {
+        return null;
+    }
+
+    @Override
+    public @Nullable Block getTargetBlockExact(int maxDistance, @NotNull FluidCollisionMode fluidCollisionMode) {
+        return null;
+    }
+
+    @Override
+    public @Nullable RayTraceResult rayTraceBlocks(double maxDistance) {
+        return null;
+    }
+
+    @Override
+    public @Nullable RayTraceResult rayTraceBlocks(double maxDistance, @NotNull FluidCollisionMode fluidCollisionMode) {
+        return null;
+    }
+
+    @Override
     public int getRemainingAir() {
         return 0;
     }
@@ -1230,6 +1418,26 @@ public class DiscordCommandSender implements Player {
 
     @Override
     public void setMaximumAir(int ticks) {
+
+    }
+
+    @Override
+    public int getArrowCooldown() {
+        return 0;
+    }
+
+    @Override
+    public void setArrowCooldown(int ticks) {
+
+    }
+
+    @Override
+    public int getArrowsInBody() {
+        return 0;
+    }
+
+    @Override
+    public void setArrowsInBody(int count) {
 
     }
 
@@ -1359,6 +1567,21 @@ public class DiscordCommandSender implements Player {
     }
 
     @Override
+    public boolean isSwimming() {
+        return false;
+    }
+
+    @Override
+    public void setSwimming(boolean swimming) {
+
+    }
+
+    @Override
+    public boolean isRiptiding() {
+        return false;
+    }
+
+    @Override
     public void setAI(boolean ai) {
 
     }
@@ -1369,12 +1592,57 @@ public class DiscordCommandSender implements Player {
     }
 
     @Override
+    public void attack(@NotNull Entity target) {
+
+    }
+
+    @Override
+    public void swingMainHand() {
+
+    }
+
+    @Override
+    public void swingOffHand() {
+
+    }
+
+    @Override
     public void setCollidable(boolean collidable) {
 
     }
 
     @Override
     public boolean isCollidable() {
+        return false;
+    }
+
+    @Override
+    public @NotNull Set<UUID> getCollidableExemptions() {
+        return null;
+    }
+
+    @Override
+    public <T> @Nullable T getMemory(@NotNull MemoryKey<T> memoryKey) {
+        return null;
+    }
+
+    @Override
+    public <T> void setMemory(@NotNull MemoryKey<T> memoryKey, @Nullable T memoryValue) {
+
+    }
+
+    @Override
+    public @NotNull EntityCategory getCategory() {
+        return null;
+    }
+
+    @Override
+    public void setInvisible(boolean invisible) {
+
+    }
+
+    @Override
+    public boolean isInvisible() {
         return false;
     }
 
@@ -1400,6 +1668,16 @@ public class DiscordCommandSender implements Player {
 
     @Override
     public void setHealth(double health) {
+
+    }
+
+    @Override
+    public double getAbsorptionAmount() {
+        return 0;
+    }
+
+    @Override
+    public void setAbsorptionAmount(double amount) {
 
     }
 
@@ -1531,6 +1809,11 @@ public class DiscordCommandSender implements Player {
 
     @Override
     public <T extends Projectile> T launchProjectile(Class<? extends T> projectile, Vector velocity) {
+        return null;
+    }
+
+    @Override
+    public @NotNull PersistentDataContainer getPersistentDataContainer() {
         return null;
     }
 }

@@ -29,13 +29,14 @@ public class DiscordCommunication extends ListenerAdapter {
     private boolean sendByDiscordFullReload = false;
 
     private String channelId;
+//    private String channelId;
     private Logger lg;
     private Server server;
     private String serverStartMessage;
     private String TOKEN;
     private String permId;
 
-    DiscordCommunication (Main main, SyncFileOperation sfo) {
+    DiscordCommunication(Main main, SyncFileOperation sfo) {
         this.main = main;
         this.sfo = sfo;
         dcs = new DiscordCommandSender(this, this.main);
@@ -45,7 +46,7 @@ public class DiscordCommunication extends ListenerAdapter {
         this.chatCommands = chatCommands;
     }
 
-    public void executeBot (Server server, Logger lg, String TOKEN, String channelId, String permId, String serverStartMessage) throws LoginException {
+    public void executeBot(Server server, Logger lg, String TOKEN, String channelId, String permId, String serverStartMessage) throws LoginException {
         this.TOKEN = TOKEN;
         this.serverStartMessage = serverStartMessage;
         this.server = server;
@@ -70,18 +71,18 @@ public class DiscordCommunication extends ListenerAdapter {
     @Override
     public void onMessageReceived(MessageReceivedEvent event) { //When message comes from discord
         try {
-            if(!permId.equals("ENTER THE ADMIN DISCORD ROLE") && event.getChannel().getId().equals(channelId) && event.getMessage().getContentRaw().trim().startsWith("!exec ") && event.getAuthor().getJDA().getRoleById(permId) != null) {
+            if (!permId.equals("ENTER THE ADMIN DISCORD ROLE") && event.getChannel().getId().equals(channelId) && event.getMessage().getContentRaw().trim().startsWith("!exec ") && event.getAuthor().getJDA().getRoleById(permId) != null) {
 
-                if(event.getMessage().getContentRaw().contains("discord full"))
+                if (event.getMessage().getContentRaw().contains("discord full"))
                     sendByDiscordFullReload = true;
-                else if (event.getMessage().getContentRaw().contains ("discord sync")) {
+                else if (event.getMessage().getContentRaw().contains("discord sync")) {
                     String toSend = "";
-                    for(String s : chatCommands.getSyncedPeopleList()) {
+                    for (String s : chatCommands.getSyncedPeopleList()) {
                         toSend += s;
                     }
                     event.getAuthor().openPrivateChannel().complete().sendMessage("To be able to see who is the user of the UUID : `<@DiscordID>`\n```css\nUUID:DiscordID\n" + toSend + "\n```").queue();
                     return;
-                } else if(event.getMessage().getContentRaw().equals("discord")) {
+                } else if (event.getMessage().getContentRaw().equals("discord")) {
                     sendMessageToDiscord("```css\n" +
                             "# [Minecraft Connects Discord by Mahmut H. Kocas]\n" +
                             "# [Youtube](https://www.youtube.com/mahmutkocas)\n" +
@@ -92,44 +93,43 @@ public class DiscordCommunication extends ListenerAdapter {
                             "/discord sync remove : Remove the Sync```");
                     return;
                 }
-                server.dispatchCommand(dcs,event.getMessage().getContentRaw().replace("!exec "," ").trim());
+                server.dispatchCommand(dcs, event.getMessage().getContentRaw().replace("!exec ", " ").trim());
             } // END IF FOR ADMINS
-            if(event.getMessage().getContentRaw().trim().startsWith("!verify ") && !event.getAuthor().isBot()) { //Handling the Verify Request
+            if (event.getMessage().getContentRaw().trim().startsWith("!sync ") && !event.getAuthor().isBot()) { //Handling the Verify Request
                 ArrayList<ArrayList<String>> syncList = chatCommands.getCurrentSyncingMemberList();
                 ArrayList<ArrayList<String>> arr = new ArrayList<>();
-                for(ArrayList<String> args : syncList) {
+                for (ArrayList<String> args : syncList) {
                     String UUID = args.get(0);
                     String rnd = args.get(1);
-                    if(event.getMessage().getContentRaw().replace("!verify ","").trim().equals(rnd)){
+                    if (event.getMessage().getContentRaw().replace("!sync ", "").trim().equals(rnd)) {
                         arr.add(args);
                         String toAdd = UUID + ":" + event.getAuthor().getId();
                         ArrayList<String> temp = chatCommands.getSyncedPeopleList();
                         temp.add(toAdd);
                         chatCommands.setSyncedPeopleList(temp);
-                        try {
-                            if (event.getGuild().getSelfMember().hasPermission(Permission.NICKNAME_MANAGE) && event.getGuild().getSelfMember().canInteract(event.getMember())) {
-                                MCD.getTextChannelById(channelId).getGuild().getMemberById(event.getAuthor().getId()).modifyNickname(args.get(2)).queue();
-                            }
-                            else
-                                lg.warning("Bot's Permission is not enough to modify!");
-
-                            if(Main.syncRoleID_GRANTED) {
-                                event.getGuild().addRoleToMember(event.getMember(), event.getJDA().getRoleById(main.getSyncRoleID())).queue();
-                            }
-                        } catch (Exception e) {
-                            lg.warning("Exception! Bot's Permission is not enough to modify!");
-                        }
+//                        try {
+//                            if (event.getGuild().getSelfMember().hasPermission(Permission.NICKNAME_MANAGE) && event.getGuild().getSelfMember().canInteract(event.getMember())) {
+////                                MCD.getTextChannelById(channelId).getGuild().getMemberById(event.getAuthor().getId()).modifyNickname(args.get(2)).queue();
+//                            } else
+//                                lg.warning("Bot's Permission is not enough to modify!");
+//
+//                            if (Main.syncRoleID_GRANTED) {
+//                                event.getGuild().addRoleToMember(event.getMember(), event.getJDA().getRoleById(main.getSyncRoleID())).queue();
+//                            }
+//                        } catch (Exception e) {
+//                            lg.warning("Exception! Bot's Permission is not enough to modify!");
+//                        }
                         sendMessageToDiscord(event.getAuthor().getName() + " successfully synced!");
                     }
                 }
                 chatCommands.removeFromRequestList(arr); //Removing the request/s from queue
-            } else if(event.getChannel().getId().equals(channelId) && !event.getAuthor().isBot()) {
+            } else if (event.getChannel().getId().equals(channelId) && !event.getAuthor().isBot()) {
                 server.broadcastMessage("[Discord] " + event.getAuthor().getName() + " : " + event.getMessage().getContentRaw()); //Mirroring Discord Chat to In-Game Chat
             }
 
 
         } catch (CommandException ex) {
-            server.dispatchCommand(dcd, event.getMessage().getContentRaw().replace("!exec "," ").trim());
+            server.dispatchCommand(dcd, event.getMessage().getContentRaw().replace("!exec ", " ").trim());
             sendMessageToDiscord("Command run, but output is out of reach. Check console.");
         } catch (NumberFormatException ex) {
             lg.warning("PERM ID IS NOT RIGHT!");
@@ -138,7 +138,7 @@ public class DiscordCommunication extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) { //First Connection
-        if(firstConnection) {
+        if (firstConnection) {
             MCD.getTextChannelById(channelId).sendMessage(serverStartMessage).queue();
             firstConnection = false;
             dcd = new DiscordConsoleDummy(this, this.main);
@@ -148,39 +148,39 @@ public class DiscordCommunication extends ListenerAdapter {
         }
     }
 
-    @Override
-    public void onGuildBan(GuildBanEvent event){
-        if(!Main.DONT_BAN) {
-            Main.DONT_BAN = true;
-            String username = event.getUser().getName();
-            String userID = event.getUser().getId();
-            for (String arg : chatCommands.getSyncedPeopleList()) {
-                String[] args = arg.split(":");
-                String UUID = args[0];
-                String DiscordID = args[1];
-                if (DiscordID.trim().equals(userID)) {
-                    Player player = (Player) main.getServer().getOfflinePlayer(java.util.UUID.fromString(UUID));
-                    String playerName = player.getName();
-                    if (player.isBanned()) {
-                        sendMessageToDiscord(username + " is banned from the discord. His account at Minecraft named " + playerName + " is already been banned.");
-                    } else {
-                        server.dispatchCommand(dcd, "ban " + playerName);
-                        sendMessageToDiscord(username + " is banned from the discord. And the minecraft account of his called " + playerName + " also banned.");
-                    }
-                    return;
-                }
-            }
-            Main.DONT_BAN = false;
-        }
-    }
+//    @Override
+//    public void onGuildBan(GuildBanEvent event){
+//        if(!Main.DONT_BAN) {
+//            Main.DONT_BAN = true;
+//            String username = event.getUser().getName();
+//            String userID = event.getUser().getId();
+//            for (String arg : chatCommands.getSyncedPeopleList()) {
+//                String[] args = arg.split(":");
+//                String UUID = args[0];
+//                String DiscordID = args[1];
+//                if (DiscordID.trim().equals(userID)) {
+//                    Player player = (Player) main.getServer().getOfflinePlayer(java.util.UUID.fromString(UUID));
+//                    String playerName = player.getName();
+//                    if (player.isBanned()) {
+//                        sendMessageToDiscord(username + " is banned from the discord. His account at Minecraft named " + playerName + " is already been banned.");
+//                    } else {
+//                        server.dispatchCommand(dcd, "ban " + playerName);
+//                        sendMessageToDiscord(username + " is banned from the discord. And the minecraft account of his called " + playerName + " also banned.");
+//                    }
+//                    return;
+//                }
+//            }
+//            Main.DONT_BAN = false;
+//        }
+//    }
 
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
-        if(Main.syncRoleID_GRANTED) {
+        if (Main.syncRoleID_GRANTED) {
             ArrayList<String> SyncedList = chatCommands.getSyncedPeopleList();
-            for(String user: SyncedList) {
+            for (String user : SyncedList) {
                 String discordID = user.split(":")[1].trim();
-                if(event.getMember().getId().trim().equals(discordID)) {
+                if (event.getMember().getId().trim().equals(discordID)) {
                     event.getGuild().addRoleToMember(event.getMember(), event.getJDA().getRoleById(main.getSyncRoleID())).queue();
                 }
             }
@@ -188,18 +188,18 @@ public class DiscordCommunication extends ListenerAdapter {
     }
 
     public void sendMessageToDiscord(String message) {
-        String[] MineCraftLanguageFilter = {"§a","§b","§c","§d","§e", "§f", "§k","§l", "§m","§n", "§o","§r", "§0","§1", "§2", "§3", "§4", "§5", "§6", "§7", "§8", "§9"}; //Weird color thingies & next-back selections
-        for(String f : MineCraftLanguageFilter)
+        String[] MineCraftLanguageFilter = {"§a", "§b", "§c", "§d", "§e", "§f", "§k", "§l", "§m", "§n", "§o", "§r", "§0", "§1", "§2", "§3", "§4", "§5", "§6", "§7", "§8", "§9"}; //Weird color thingies & next-back selections
+        for (String f : MineCraftLanguageFilter)
             message = message.replaceAll(f, "");
-        if(!message.isEmpty())
+        if (!message.isEmpty())
             MCD.getTextChannelById(channelId).sendMessage(message).queue();
     }
 
     public void returnLogFromConsole(String message) {
-        String[] MineCraftLanguageFilter = {"§a","§b","§c","§d","§e", "§f", "§k","§l", "§m","§n", "§o","§r", "§0","§1", "§2", "§3", "§4", "§5", "§6", "§7", "§8", "§9"}; //Weird color thingies & next-back selections
-        for(String f : MineCraftLanguageFilter)
+        String[] MineCraftLanguageFilter = {"§a", "§b", "§c", "§d", "§e", "§f", "§k", "§l", "§m", "§n", "§o", "§r", "§0", "§1", "§2", "§3", "§4", "§5", "§6", "§7", "§8", "§9"}; //Weird color thingies & next-back selections
+        for (String f : MineCraftLanguageFilter)
             message = message.replaceAll(f, "");
-        if(!message.isEmpty())
+        if (!message.isEmpty())
             MCD.getTextChannelById(channelId).sendMessage(message).queue();
     }
 

@@ -205,4 +205,24 @@ public class ChatCommands implements CommandExecutor {
             player.sendMessage(syncMessage.trim().replaceAll("&code", rnd +""));
         }
     }
+
+    public String getDiscordSyncCode(Player player) { //File(SyncedPeopleList) uuid:userDiscordId
+        String uuid  = player.getUniqueId().toString();
+        for(ArrayList<String> arg : CurrentSyncingMemberList) { // 0 = uuid - 1 = random | Already asked for a code
+            if(arg.get(0).equals(uuid)) {
+                // asked but not entered the code yet
+                return arg.get(1);
+            }
+        }
+
+        //First Ask for Sync
+        Random rndGen = new Random();
+        int rnd = rndGen.nextInt() % 10000;
+        ArrayList<String> addReq = new ArrayList<>();
+        addReq.add(0 , uuid);
+        addReq.add(1, rnd + "");
+        addReq.add(2, player.getName());
+        CurrentSyncingMemberList.add(addReq);
+        return rnd + "";
+    }
 }

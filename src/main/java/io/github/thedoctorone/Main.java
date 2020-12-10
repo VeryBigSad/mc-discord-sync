@@ -2,15 +2,23 @@ package io.github.thedoctorone;
 
 import javax.security.auth.login.LoginException;
 
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import io.github.thedoctorone.DiscordCommunication;
 
 import java.io.*;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class Main extends JavaPlugin implements Listener {
     private DiscordCommunication dc;
@@ -36,7 +44,8 @@ public class Main extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-        getLogger().info("Hello, Minecraft Connects to Discord is here! by Mahmut H. Kocas");
+        getLogger().info("Hello, Minecraft Connects to Discord is here! by Mahmat H.a Kocas [ modified by VeryBigSad ]");
+        getServer().getPluginManager().registerEvents(this, this);
         try {
             ConfigThingies();
             sfo = new SyncFileOperation();
@@ -46,10 +55,10 @@ public class Main extends JavaPlugin implements Listener {
         } catch (IOException e) {
             getLogger().warning("CAN'T INTERACT WITH 'discord/' PATH!");
         }
+
         if(!TOKEN.equals("ENTER YOUR TOKEN HERE"))
             try {
                 dc.executeBot(getServer(), getLogger(), TOKEN, channelID, discordPerm, ServerStart);
-                getServer().getPluginManager().registerEvents(this, this);
             } catch (LoginException e) {
                 getLogger().warning("Couldn't join to discord! Check your token or Internet Connection!");
             }
@@ -77,22 +86,81 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     @EventHandler
+    public void playerMove(PlayerMoveEvent e) {
+        for (ArrayList<String> args : chatCommands.getCurrentSyncingMemberList()) {
+            if (e.getPlayer().getUniqueId().toString().equals(args.get(0))) {
+                e.setCancelled(true);
+//                e.getPlayer().sendRawMessage("You can't play until you synced accounts!");
+            }
+        }
+    }
+
+    @EventHandler
+    public void playerBreak(BlockBreakEvent e) {
+        for (ArrayList<String> args : chatCommands.getCurrentSyncingMemberList()) {
+            if (e.getPlayer().getUniqueId().toString().equals(args.get(0))) {
+                e.setCancelled(true);
+                e.getPlayer().sendRawMessage("You can't play until you synced accounts!");
+            }
+        }
+    }
+
+    @EventHandler
+    public void playerChat(AsyncPlayerChatEvent e) {
+        for (ArrayList<String> args : chatCommands.getCurrentSyncingMemberList()) {
+            if (e.getPlayer().getUniqueId().toString().equals(args.get(0))) {
+                e.setCancelled(true);
+                e.getPlayer().sendRawMessage("You can't chat until you synced accounts!");
+            }
+        }
+    }
+
+    @EventHandler
+    public void playerDamage(EntityDamageEvent e) {
+        if (!(e.getEntity() instanceof Player)) {
+            return;
+        }
+        for (ArrayList<String> args : chatCommands.getCurrentSyncingMemberList()) {
+            if (((Player)(e.getEntity())).getUniqueId().toString().equals(args.get(0))) {
+                e.setCancelled(true);
+                ((Player)(e.getEntity())).sendRawMessage("You can't play until you synced accounts!");
+            }
+        }
+    }
+
+    @EventHandler
+    public void playerJoinEventyes(PlayerJoinEvent event) {
+        boolean is_synced = false;
+
+//        getLogger().info("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaAAAAAAAAAAAaAAAAAAAAAAA");
+//        System.out.println(event.getPlayer().getName() + "AAAAAAAAAAAAAA");
+        for(String args : chatCommands.getSyncedPeopleList()) {
+            String UUID = args.split(":")[0].trim();
+            if(event.getPlayer().getUniqueId().toString().trim().equals(UUID)) {
+//                System.out.println(event.getPlayer().getName() + " is already authed");
+                is_synced = true;
+            }
+        }
+
+        if (!is_synced) {
+            Player p = event.getPlayer();
+            String code = this.chatCommands.getDiscordSyncCode(event.getPlayer());
+            p.sendRawMessage(ChatColor.DARK_GREEN + "Hello! Welcome to the SMP." + ChatColor.AQUA + "\nTo start playing, you have to sync your discord." +
+                    "\nTo do that, join " + ChatColor.DARK_AQUA + "IamVeryBigSad" + ChatColor.AQUA + "'s server\n" +
+                    ChatColor.GREEN + "Link: " + discordInviteLink +
+                    ChatColor.AQUA + "\nAnd in" + ChatColor.DARK_RED + " #bot-commands " + ChatColor.AQUA + "type " + ChatColor.WHITE + ChatColor.BOLD + "\"!verify <code>\"".replaceAll("<code>", code));
+
+            return;
+        }
+
+        String player = event.getPlayer().getDisplayName();
+        dc.sendMessageToDiscord(boldStart + playerJoin.replace("&p", player) + boldEnd);
+    }
+
+    @EventHandler
     public void playerLeftEvent(PlayerQuitEvent event) {
         String player = event.getPlayer().getDisplayName();
-        if(event.getPlayer().isBanned() && !DONT_BAN) {
-            DONT_BAN = true;
-            for(String args : chatCommands.getSyncedPeopleList()) {
-                String UUID = args.split(":")[0].trim();
-                String dcID = args.split(":")[1].trim();
-                if(event.getPlayer().getUniqueId().toString().trim().equals(UUID)) {
-                    DiscordCommunication.MCD.getTextChannelById(channelID).getGuild().ban(dcID, 0).queue();
-                    dc.sendMessageToDiscord(player + " is banned. And his discord account named : " + DiscordCommunication.MCD.getUserById(dcID).getName() + " also banned from discord server");
-                }
-            }
-            DONT_BAN = false;
-        } else {
-            dc.sendMessageToDiscord(boldStart + playerLeft.replace("&p", player) + boldEnd);
-        }
+        dc.sendMessageToDiscord(boldStart + playerLeft.replace("&p", player) + boldEnd);
     }
 
     @EventHandler

@@ -11,8 +11,11 @@ import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
@@ -37,6 +40,16 @@ public class DiscordConsoleDummy implements RemoteConsoleCommandSender {
             temp.append(s).append("\n");
         temp.append("```");
         dc.returnLogFromConsole(temp.toString());
+    }
+
+    @Override
+    public void sendMessage(@Nullable UUID sender, @NotNull String message) {
+
+    }
+
+    @Override
+    public void sendMessage(@Nullable UUID sender, @NotNull String[] messages) {
+
     }
 
     @Override
