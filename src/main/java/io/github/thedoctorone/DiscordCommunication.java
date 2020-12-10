@@ -26,7 +26,7 @@ public class DiscordCommunication extends ListenerAdapter {
     private Main main;
     private ChatCommands chatCommands;
     private SyncFileOperation sfo;
-    private DiscordCommandSender dcs;
+//    private DiscordCommandSender dcs;
     private RemoteConsoleCommandSender dcd;
     private boolean firstConnection = true;
     private boolean sendByDiscordFullReload = false;
@@ -43,7 +43,7 @@ public class DiscordCommunication extends ListenerAdapter {
     DiscordCommunication(Main main, SyncFileOperation sfo) {
         this.main = main;
         this.sfo = sfo;
-        dcs = new DiscordCommandSender(this, this.main);
+//        dcs = new DiscordCommandSender(this, this.main);
     }
 
     public void setChatCommands(ChatCommands chatCommands) {
@@ -116,7 +116,7 @@ public class DiscordCommunication extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) { //First Connection
-        System.out.println("Discord ready!");
+        sendMessageToDiscord("AHHHHHHHHHHHHHHH", false);
         if (firstConnection) {
             MCD.getTextChannelById(channelId).sendMessage(serverStartMessage).queue();
             firstConnection = false;
